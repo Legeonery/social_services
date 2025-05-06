@@ -11,5 +11,17 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('users', function () {
+    return Inertia::render('Users');
+})->middleware(['auth', 'verified'])->name('users');
+
+Route::get('services', function () {
+    return Inertia::render('Services');
+})->middleware(['auth', 'verified'])->name('services');
+
+Route::get('schedule', function () {
+    return Inertia::render('Schedule');
+})->middleware(['auth', 'verified'])->name('chedule');
+
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

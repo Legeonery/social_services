@@ -1,4 +1,3 @@
-<!-- resources/js/pages/Auth/PhoneVerificationForm.vue -->
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -8,10 +7,17 @@ import AuthBase from '@/layouts/AuthLayout.vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
 
-const phone = usePage().props.phone;
+interface PhoneVerificationForm {
+    phone: string;
+    code: string;
+    [key: string]: any;
+}
 
-const form = useForm({
-    phone: phone || '',
+const page = usePage<{ phone: string | null }>();
+const phone = page.props.phone ?? ''; // защита от null
+
+const form = useForm<PhoneVerificationForm>({
+    phone,
     code: '',
 });
 
