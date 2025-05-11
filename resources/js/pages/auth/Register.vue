@@ -23,19 +23,19 @@ const submit = () => {
 </script>
 
 <template>
-    <AuthBase title="Sign Up" description="Use your phone or email to register">
-        <Head title="Register" />
+    <AuthBase title="Регистрация" description="Вас приветствует ОСОН">
+        <Head title="Регистрация" />
 
         <form @submit.prevent="submit" class="flex flex-col gap-6">
             <div class="grid gap-4">
                 <div class="grid gap-2">
-                    <Label for="name">Name</Label>
-                    <Input id="name" v-model="form.name" autocomplete="name" placeholder="Your name" />
+                    <Label for="name">Имя</Label>
+                    <Input id="name" v-model="form.name" autocomplete="name" placeholder="Ваше имя" />
                     <InputError :message="form.errors.name" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="email_or_phone">Email or phone</Label>
+                    <Label for="email_or_phone">Email или телефон</Label>
                     <Input
                         id="email_or_phone"
                         type="text"
@@ -48,26 +48,26 @@ const submit = () => {
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password">Password</Label>
-                    <Input id="password" type="password" required v-model="form.password" />
+                    <Label for="password">Пароль</Label>
+                    <Input id="password" type="password" required v-model="form.password" placeholder="********" />
                     <InputError :message="form.errors.password" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirm Password</Label>
-                    <Input id="password_confirmation" type="password" required v-model="form.password_confirmation" />
+                    <Label for="password_confirmation">Подтверждение пароля</Label>
+                    <Input id="password_confirmation" type="password" required v-model="form.password_confirmation" placeholder="********" />
                     <InputError :message="form.errors.password_confirmation" />
                 </div>
 
                 <Button type="submit" class="mt-2 w-full" :disabled="form.processing">
-                    <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
-                    Continue
+                    <LoaderCircle v-if="form.processing" class="mr-2 h-4 w-4 animate-spin" />
+                    Продолжить
                 </Button>
             </div>
 
             <div class="text-muted-foreground text-center text-sm">
-                Already have an account?
-                <TextLink :href="route('login')" class="underline underline-offset-4">Log in</TextLink>
+                Уже есть аккаунт?
+                <TextLink :href="route('login')" class="underline underline-offset-4">Войти</TextLink>
             </div>
         </form>
     </AuthBase>

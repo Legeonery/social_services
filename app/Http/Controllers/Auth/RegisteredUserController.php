@@ -82,7 +82,7 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
         Auth::login($user);
 
-        return to_route('dashboard');
+        return to_route('users');
     }
 
     public function check(Request $request): RedirectResponse
@@ -158,6 +158,6 @@ class RegisteredUserController extends Controller
         Cache::forget("register:pending:{$data['phone']}");
         Auth::login($user);
 
-        return redirect()->route('dashboard');
+        return redirect()->route('users');
     }
 }
