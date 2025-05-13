@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import UserFormWrapper from '@/components/UserFormWrapper.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
@@ -15,6 +16,7 @@ const selectedUser = ref<any | null>(null);
 const sortDirection = ref<'asc' | 'desc'>('asc');
 const sortBy = ref('');
 
+//const fullName = `${form.lastName} ${form.firstName} ${form.middleName || ''}`.trim(); //Объединение ФИО в одну строку
 // Пример данных (замени на API-запрос или props)
 const users = ref([
     // 10 клиентов
@@ -334,6 +336,54 @@ const users = ref([
     },
 ]);
 
+const showForm = ref(false);
+const isEdit = ref(false);
+const selectedAdmin = ref(null);
+
+const openAddForm = () => {
+    selectedAdmin.value = null;
+    isEdit.value = false;
+    showForm.value = true;
+};
+
+const editAdmin = (admin) => {
+    selectedAdmin.value = admin;
+    isEdit.value = true;
+    showForm.value = true;
+};
+
+const handleFormSubmit = (adminData) => {
+    const fullName = `${adminData.lastName} ${adminData.firstName} ${adminData.middleName || ''}`.trim();
+
+    const adminEntry = {
+        ...adminData,
+        fullName,
+        status: isEdit.value ? adminData.status : 'Активный', // статус только для редактирования
+    };
+
+    if (isEdit.value) {
+        const index = users.value.findIndex((a) => a.id === selectedAdmin.value.id && a.tab === 'admins');
+        if (index !== -1) {
+            users.value[index] = { ...adminEntry, id: selectedAdmin.value.id, tab: 'admins' };
+        }
+    } else {
+        const newId = users.value.length > 0 ? Math.max(...users.value.map((a) => a.id)) + 1 : 1;
+        users.value.push({
+            ...adminEntry,
+            id: newId,
+            avatar: '🛠️',
+            tab: 'admins',
+        });
+    }
+
+    closeForm();
+};
+
+const closeForm = () => {
+    showForm.value = false;
+    selectedAdmin.value = null;
+};
+
 const filteredUsers = computed(() => {
     let result = users.value
         .filter((u) => u.tab === activeTab.value)
@@ -384,6 +434,36 @@ function closeInfoPanel() {
     selectedUser.value = null;
     showInfoPanel.value = false;
 }
+const deleteUser = (id: number) => {
+    users.value = users.value.filter((u) => u.id !== id);
+};
+const selectedSocialWorker = ref(null);
+
+const editSocialWorker = (worker) => {
+    selectedSocialWorker.value = worker;
+    isEdit.value = true;
+    showForm.value = true;
+};
+
+const handleSocialWorkerSubmit = (formData) => {
+    const fullName = `${formData.lastName} ${formData.firstName} ${formData.middleName || ''}`.trim();
+    const entry = {
+        ...formData,
+        fullName,
+        tab: 'social_workers',
+        status: isEdit.value ? formData.status : 'Активный', // <-- здесь устанавливается статус
+    };
+
+    if (isEdit.value && selectedSocialWorker.value) {
+        const index = users.value.findIndex((u) => u.id === selectedSocialWorker.value.id);
+        if (index !== -1) users.value[index] = { ...entry, id: selectedSocialWorker.value.id };
+    } else {
+        const newId = users.value.length ? Math.max(...users.value.map((u) => u.id)) + 1 : 1;
+        users.value.push({ ...entry, id: newId });
+    }
+
+    closeForm();
+};
 </script>
 
 <template>
@@ -393,7 +473,15 @@ function closeInfoPanel() {
             <!-- Верхняя панель -->
             <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                 <input v-model="search" class="rounded border p-2 dark:bg-gray-800 dark:text-white" placeholder="Поиск по ФИО..." />
-                <button class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">+ Добавить пользователя</button>
+                <button v-if="activeTab === 'clients'" @click="openAddForm" class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                    Добавить клиента
+                </button>
+                <button v-if="activeTab === 'social_workers'" @click="openAddForm" class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                    Добавить соц. работника
+                </button>
+                <button v-if="activeTab === 'admins'" @click="openAddForm" class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                    Добавить администратора
+                </button>
             </div>
 
             <!-- Вкладки -->
@@ -528,7 +616,7 @@ function closeInfoPanel() {
                             </td>
                             <td class="p-2">
                                 <div class="flex justify-center gap-2">
-                                    <button title="Редактировать">✏️</button>
+                                    <button title="Редактировать" @click="editSocialWorker(user)">✏️</button>
                                     <button title="Удалить">🗑️</button>
                                 </div>
                             </td>
@@ -539,7 +627,6 @@ function closeInfoPanel() {
                     </tbody>
                 </table>
 
-                <!-- Таблица админов -->
                 <!-- Таблица админов -->
                 <table v-else class="min-w-full text-sm">
                     <thead class="bg-gray-100 dark:bg-gray-800 dark:text-gray-200">
@@ -578,8 +665,8 @@ function closeInfoPanel() {
                             </td>
                             <td class="p-2 text-center">
                                 <div class="flex justify-center gap-2">
-                                    <button title="Редактировать" class="text-blue-500 hover:scale-110">✏️</button>
-                                    <button title="Удалить" class="text-red-500 hover:scale-110">🗑️</button>
+                                    <button @click="editAdmin(user)" title="Редактировать" class="text-blue-500 hover:scale-110">✏️</button>
+                                    <button @click="deleteUser(user.id)" title="Удалить" class="text-red-500 hover:scale-110">🗑️</button>
                                 </div>
                             </td>
                         </tr>
@@ -588,6 +675,14 @@ function closeInfoPanel() {
                         </tr>
                     </tbody>
                 </table>
+                <UserFormWrapper
+                    v-if="showForm"
+                    :active-tab="activeTab"
+                    :model-value="activeTab === 'admins' ? selectedAdmin : selectedSocialWorker"
+                    :is-edit="isEdit"
+                    @submit="activeTab === 'admins' ? handleFormSubmit : handleSocialWorkerSubmit"
+                    @cancel="closeForm"
+                />
             </div>
 
             <!-- Пагинация -->
