@@ -1,0 +1,1 @@
+import{d as s,c as a,o,z as r}from"./app-DXa2VlGV.js";const c=s({inheritAttrs:!1,__name:"AppLogoIcon",props:{className:{}},setup(t){return(e,p)=>(o(),a("img",r({src:"/images/logo.png",class:e.className},e.$attrs,{alt:"Логотип Отдела социального обслуживания населения",style:{width:"120px",height:"auto","border-radius":"10px"}}),null,16))}});export{c as _};

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watchEffect } from 'vue'; // ✅ удалено emit
+import { ref, watchEffect } from 'vue';
 
 const props = defineProps({
     modelValue: Object,

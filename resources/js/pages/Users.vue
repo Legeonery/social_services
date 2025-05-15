@@ -16,8 +16,6 @@ const selectedUser = ref<any | null>(null);
 const sortDirection = ref<'asc' | 'desc'>('asc');
 const sortBy = ref('');
 
-//const fullName = `${form.lastName} ${form.firstName} ${form.middleName || ''}`.trim(); //Объединение ФИО в одну строку
-// Пример данных (замени на API-запрос или props)
 const users = ref([
     // 10 клиентов
     {
@@ -338,71 +336,95 @@ const users = ref([
 
 const showForm = ref(false);
 const isEdit = ref(false);
-const selectedAdmin = ref(null);
+const selectedAdmin = ref<any | null>(null);
+const selectedSocialWorker = ref<any | null>(null);
 
+// Открытие формы для добавления
 const openAddForm = () => {
     selectedAdmin.value = null;
+    selectedSocialWorker.value = null;
     isEdit.value = false;
     showForm.value = true;
 };
 
-const editAdmin = (admin) => {
+// Редактирование администратора
+const editAdmin = (admin: any) => {
     selectedAdmin.value = admin;
     isEdit.value = true;
     showForm.value = true;
 };
 
-const handleFormSubmit = (adminData) => {
-    const fullName = `${adminData.lastName} ${adminData.firstName} ${adminData.middleName || ''}`.trim();
+// Редактирование соц. работника
+const editSocialWorker = (worker: any) => {
+    selectedSocialWorker.value = worker;
+    isEdit.value = true;
+    showForm.value = true;
+};
 
-    const adminEntry = {
-        ...adminData,
+// Закрытие формы
+const closeForm = () => {
+    showForm.value = false;
+    selectedAdmin.value = null;
+    selectedSocialWorker.value = null;
+};
+
+// Универсальный обработчик отправки формы
+const handleUserSubmit = (formData: any) => {
+    const fullName = `${formData.lastName} ${formData.firstName} ${formData.middleName || ''}`.trim();
+    const entry = {
+        ...formData,
         fullName,
-        status: isEdit.value ? adminData.status : 'Активный', // статус только для редактирования
+        tab: activeTab.value,
+        status: isEdit.value ? formData.status : 'Активный',
     };
 
-    if (isEdit.value) {
-        const index = users.value.findIndex((a) => a.id === selectedAdmin.value.id && a.tab === 'admins');
-        if (index !== -1) {
-            users.value[index] = { ...adminEntry, id: selectedAdmin.value.id, tab: 'admins' };
-        }
+    const selectedRef = activeTab.value === 'social_workers' ? selectedSocialWorker : selectedAdmin;
+
+    if (isEdit.value && selectedRef.value) {
+        const index = users.value.findIndex((u) => u.id === selectedRef.value.id);
+        if (index !== -1) users.value[index] = { ...entry, id: selectedRef.value.id };
     } else {
-        const newId = users.value.length > 0 ? Math.max(...users.value.map((a) => a.id)) + 1 : 1;
-        users.value.push({
-            ...adminEntry,
-            id: newId,
-            avatar: '🛠️',
-            tab: 'admins',
-        });
+        const newId = users.value.length ? Math.max(...users.value.map((u) => u.id)) + 1 : 1;
+        users.value.push({ ...entry, id: newId });
     }
 
     closeForm();
 };
 
-const closeForm = () => {
-    showForm.value = false;
-    selectedAdmin.value = null;
+// Удаление пользователя
+const deleteUser = (id: number) => {
+    users.value = users.value.filter((u) => u.id !== id);
 };
 
+// Открытие панели информации
+const openInfoPanel = (user: any) => {
+    selectedUser.value = user;
+    showInfoPanel.value = true;
+};
+
+// Закрытие инфо-панели
+const closeInfoPanel = () => {
+    selectedUser.value = null;
+    showInfoPanel.value = false;
+};
+
+// Фильтрация и сортировка
 const filteredUsers = computed(() => {
     let result = users.value
         .filter((u) => u.tab === activeTab.value)
-        .filter((u) => u.fullName.toLowerCase().includes(search.value.toLowerCase()))
+        .filter((u) => u.fullName?.toLowerCase().includes(search.value.toLowerCase()))
         .filter((u) => !statusFilter.value || u.status === statusFilter.value);
 
     if (sortBy.value === 'status') {
         result = result.slice().sort((a, b) => {
-            if (sortDirection.value === 'asc') {
-                return a.status.localeCompare(b.status, 'ru');
-            } else {
-                return b.status.localeCompare(a.status, 'ru');
-            }
+            return sortDirection.value === 'asc' ? a.status.localeCompare(b.status, 'ru') : b.status.localeCompare(a.status, 'ru');
         });
     }
 
     return result;
 });
 
+// Сортировка по столбцу
 function toggleSortBy(field: string) {
     if (sortBy.value === field) {
         sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
@@ -412,6 +434,7 @@ function toggleSortBy(field: string) {
     }
 }
 
+// Пагинация
 const paginatedUsers = computed(() => {
     const start = (currentPage.value - 1) * itemsPerPage;
     return filteredUsers.value.slice(start, start + itemsPerPage);
@@ -424,46 +447,6 @@ function goToPage(page: number) {
         currentPage.value = page;
     }
 }
-
-function openInfoPanel(user: any) {
-    selectedUser.value = user;
-    showInfoPanel.value = true;
-}
-
-function closeInfoPanel() {
-    selectedUser.value = null;
-    showInfoPanel.value = false;
-}
-const deleteUser = (id: number) => {
-    users.value = users.value.filter((u) => u.id !== id);
-};
-const selectedSocialWorker = ref(null);
-
-const editSocialWorker = (worker) => {
-    selectedSocialWorker.value = worker;
-    isEdit.value = true;
-    showForm.value = true;
-};
-
-const handleSocialWorkerSubmit = (formData) => {
-    const fullName = `${formData.lastName} ${formData.firstName} ${formData.middleName || ''}`.trim();
-    const entry = {
-        ...formData,
-        fullName,
-        tab: 'social_workers',
-        status: isEdit.value ? formData.status : 'Активный', // <-- здесь устанавливается статус
-    };
-
-    if (isEdit.value && selectedSocialWorker.value) {
-        const index = users.value.findIndex((u) => u.id === selectedSocialWorker.value.id);
-        if (index !== -1) users.value[index] = { ...entry, id: selectedSocialWorker.value.id };
-    } else {
-        const newId = users.value.length ? Math.max(...users.value.map((u) => u.id)) + 1 : 1;
-        users.value.push({ ...entry, id: newId });
-    }
-
-    closeForm();
-};
 </script>
 
 <template>
@@ -680,7 +663,7 @@ const handleSocialWorkerSubmit = (formData) => {
                     :active-tab="activeTab"
                     :model-value="activeTab === 'admins' ? selectedAdmin : selectedSocialWorker"
                     :is-edit="isEdit"
-                    @submit="activeTab === 'admins' ? handleFormSubmit : handleSocialWorkerSubmit"
+                    @submit="handleUserSubmit"
                     @cancel="closeForm"
                 />
             </div>
