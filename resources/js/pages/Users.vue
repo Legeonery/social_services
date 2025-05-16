@@ -26,7 +26,6 @@ const users = ref([
         status: 'Активный',
         type: 'бюджетный',
         socialWorker: 'Петров П.П.',
-        avatar: '👤',
         tab: 'clients',
     },
     {
@@ -37,7 +36,6 @@ const users = ref([
         status: 'Неактивный',
         type: 'платный',
         socialWorker: 'Петров П.П.',
-        avatar: '👤',
         tab: 'clients',
     },
     {
@@ -48,7 +46,6 @@ const users = ref([
         status: 'Активный',
         type: 'бюджетный',
         socialWorker: 'Сидорова И.И.',
-        avatar: '👤',
         tab: 'clients',
     },
     {
@@ -59,7 +56,6 @@ const users = ref([
         status: 'Активный',
         type: 'платный',
         socialWorker: 'Сидорова И.И.',
-        avatar: '👤',
         tab: 'clients',
     },
     {
@@ -70,7 +66,6 @@ const users = ref([
         status: 'Неактивный',
         type: 'бюджетный',
         socialWorker: 'Петров П.П.',
-        avatar: '👤',
         tab: 'clients',
     },
     {
@@ -81,7 +76,6 @@ const users = ref([
         status: 'Активный',
         type: 'платный',
         socialWorker: 'Сидорова И.И.',
-        avatar: '👤',
         tab: 'clients',
     },
     {
@@ -92,7 +86,6 @@ const users = ref([
         status: 'Неактивный',
         type: 'бюджетный',
         socialWorker: 'Петров П.П.',
-        avatar: '👤',
         tab: 'clients',
     },
     {
@@ -103,7 +96,6 @@ const users = ref([
         status: 'Активный',
         type: 'платный',
         socialWorker: 'Сидорова И.И.',
-        avatar: '👤',
         tab: 'clients',
     },
     {
@@ -114,7 +106,6 @@ const users = ref([
         status: 'Активный',
         type: 'бюджетный',
         socialWorker: 'Петров П.П.',
-        avatar: '👤',
         tab: 'clients',
     },
     {
@@ -125,7 +116,6 @@ const users = ref([
         status: 'Неактивный',
         type: 'платный',
         socialWorker: 'Сидорова И.И.',
-        avatar: '👤',
         tab: 'clients',
     },
 
@@ -136,7 +126,6 @@ const users = ref([
         phone: '+7 999 111-22-33',
         email: 'olga@example.com',
         status: 'В отпуске',
-        avatar: '🧑‍⚕️',
         tab: 'social_workers',
         socialWorkerClients: ['Иван Иванов', 'Сергей Смирнов'],
     },
@@ -146,7 +135,6 @@ const users = ref([
         phone: '+7 999 000-11-22',
         email: 'inna@example.com',
         status: 'Активный',
-        avatar: '🧑‍⚕️',
         tab: 'social_workers',
         socialWorkerClients: ['Мария Кузнецова'],
     },
@@ -156,7 +144,6 @@ const users = ref([
         phone: '+7 999 123-45-67',
         email: 'yulia@example.com',
         status: 'На больничном',
-        avatar: '🧑‍⚕️',
         tab: 'social_workers',
         socialWorkerClients: ['Анна Белова'],
     },
@@ -166,7 +153,6 @@ const users = ref([
         phone: '+7 999 222-33-44',
         email: 'igor@example.com',
         status: 'Уволенный',
-        avatar: '🧑‍⚕️',
         tab: 'social_workers',
         socialWorkerClients: ['Дмитрий Орлов'],
     },
@@ -176,7 +162,6 @@ const users = ref([
         phone: '+7 999 333-44-55',
         email: 'mironov@example.com',
         status: 'Активный',
-        avatar: '🧑‍⚕️',
         tab: 'social_workers',
         socialWorkerClients: ['Оксана Лебедева'],
     },
@@ -186,7 +171,6 @@ const users = ref([
         phone: '+7 999 444-55-66',
         email: 'tamara@example.com',
         status: 'Активный',
-        avatar: '🧑‍⚕️',
         tab: 'social_workers',
         socialWorkerClients: ['Павел Морозов'],
     },
@@ -196,7 +180,6 @@ const users = ref([
         phone: '+7 999 555-66-77',
         email: 'vlad@example.com',
         status: 'На больничном',
-        avatar: '🧑‍⚕️',
         tab: 'social_workers',
         socialWorkerClients: ['Татьяна Васильева'],
     },
@@ -206,7 +189,6 @@ const users = ref([
         phone: '+7 999 666-77-88',
         email: 'sveta@example.com',
         status: 'Уволенный',
-        avatar: '🧑‍⚕️',
         tab: 'social_workers',
         socialWorkerClients: [],
     },
@@ -216,7 +198,6 @@ const users = ref([
         phone: '+7 999 777-88-99',
         email: 'roman@example.com',
         status: 'Активный',
-        avatar: '🧑‍⚕️',
         tab: 'social_workers',
         socialWorkerClients: [],
     },
@@ -226,7 +207,6 @@ const users = ref([
         phone: '+7 999 888-99-00',
         email: 'elena@example.com',
         status: 'В отпуске',
-        avatar: '🧑‍⚕️',
         tab: 'social_workers',
         socialWorkerClients: [],
     },
@@ -239,7 +219,6 @@ const users = ref([
         email: 'admin@example.com',
         status: 'Активный',
         socialWorker: '-',
-        avatar: '🛠️',
         tab: 'admins',
     },
     {
@@ -249,7 +228,6 @@ const users = ref([
         email: 'mikhail@example.com',
         status: 'Уволенный',
         socialWorker: '-',
-        avatar: '🛠️',
         tab: 'admins',
     },
     {
@@ -259,7 +237,6 @@ const users = ref([
         email: 'svet@example.com',
         status: 'Активный',
         socialWorker: '-',
-        avatar: '🛠️',
         tab: 'admins',
     },
     {
@@ -269,7 +246,6 @@ const users = ref([
         email: 'andrey@example.com',
         status: 'Уволенный',
         socialWorker: '-',
-        avatar: '🛠️',
         tab: 'admins',
     },
     {
@@ -279,7 +255,6 @@ const users = ref([
         email: 'timur@example.com',
         status: 'Активный',
         socialWorker: '-',
-        avatar: '🛠️',
         tab: 'admins',
     },
     {
@@ -289,7 +264,6 @@ const users = ref([
         email: 'irina@example.com',
         status: 'Уволенный',
         socialWorker: '-',
-        avatar: '🛠️',
         tab: 'admins',
     },
     {
@@ -299,7 +273,6 @@ const users = ref([
         email: 'rustam@example.com',
         status: 'Активный',
         socialWorker: '-',
-        avatar: '🛠️',
         tab: 'admins',
     },
     {
@@ -309,7 +282,6 @@ const users = ref([
         email: 'marina@example.com',
         status: 'Уволенный',
         socialWorker: '-',
-        avatar: '🛠️',
         tab: 'admins',
     },
     {
@@ -319,7 +291,6 @@ const users = ref([
         email: 'george@example.com',
         status: 'Активный',
         socialWorker: '-',
-        avatar: '🛠️',
         tab: 'admins',
     },
     {
@@ -329,7 +300,6 @@ const users = ref([
         email: 'valentina@example.com',
         status: 'Уволенный',
         socialWorker: '-',
-        avatar: '🛠️',
         tab: 'admins',
     },
 ]);
@@ -338,11 +308,13 @@ const showForm = ref(false);
 const isEdit = ref(false);
 const selectedAdmin = ref<any | null>(null);
 const selectedSocialWorker = ref<any | null>(null);
+const selectedClient = ref<any | null>(null);
 
 // Открытие формы для добавления
 const openAddForm = () => {
     selectedAdmin.value = null;
     selectedSocialWorker.value = null;
+    selectedClient.value = null;
     isEdit.value = false;
     showForm.value = true;
 };
@@ -360,7 +332,12 @@ const editSocialWorker = (worker: any) => {
     isEdit.value = true;
     showForm.value = true;
 };
-
+// Редактирование клиента
+const editClient = (client: any) => {
+    selectedClient.value = client;
+    isEdit.value = true;
+    showForm.value = true;
+};
 // Закрытие формы
 const closeForm = () => {
     showForm.value = false;
@@ -368,17 +345,18 @@ const closeForm = () => {
     selectedSocialWorker.value = null;
 };
 
-// Универсальный обработчик отправки формы
 const handleUserSubmit = (formData: any) => {
-    const fullName = `${formData.lastName} ${formData.firstName} ${formData.middleName || ''}`.trim();
     const entry = {
         ...formData,
-        fullName,
+        fullName: `${formData.lastName} ${formData.firstName} ${formData.middleName || ''}`.trim(),
         tab: activeTab.value,
         status: isEdit.value ? formData.status : 'Активный',
     };
 
-    const selectedRef = activeTab.value === 'social_workers' ? selectedSocialWorker : selectedAdmin;
+    let selectedRef;
+    if (activeTab.value === 'clients') selectedRef = selectedClient;
+    else if (activeTab.value === 'social_workers') selectedRef = selectedSocialWorker;
+    else selectedRef = selectedAdmin;
 
     if (isEdit.value && selectedRef.value) {
         const index = users.value.findIndex((u) => u.id === selectedRef.value.id);
@@ -390,7 +368,6 @@ const handleUserSubmit = (formData: any) => {
 
     closeForm();
 };
-
 // Удаление пользователя
 const deleteUser = (id: number) => {
     users.value = users.value.filter((u) => u.id !== id);
@@ -533,7 +510,7 @@ function goToPage(page: number) {
                         >
                             <td class="p-2">{{ user.fullName }}</td>
                             <td class="cursor-pointer p-2" @click="openInfoPanel(user)">
-                                <span title="Открыть подробности">{{ user.avatar }}</span>
+                                <span title="Открыть подробности">👤</span>
                             </td>
                             <td class="p-2">{{ user.phone }}</td>
                             <td class="p-2">{{ user.email }}</td>
@@ -544,8 +521,8 @@ function goToPage(page: number) {
                             </td>
                             <td class="p-2 text-center">
                                 <div class="flex justify-center gap-2">
-                                    <button title="Редактировать" class="text-blue-500 hover:scale-110">✏️</button>
-                                    <button title="Удалить" class="text-red-500 hover:scale-110">🗑️</button>
+                                    <button title="Редактировать" @click="editClient(user)" class="text-blue-500 hover:scale-110">✏️</button>
+                                    <button title="Удалить" @click="deleteUser(user.id)" class="text-red-500 hover:scale-110">🗑️</button>
                                 </div>
                             </td>
                         </tr>
@@ -579,9 +556,7 @@ function goToPage(page: number) {
                             class="border-t hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
                         >
                             <td class="p-2">{{ user.fullName }}</td>
-                            <td class="cursor-pointer p-2" @click="openInfoPanel(user)">
-                                {{ user.avatar }}
-                            </td>
+                            <td class="cursor-pointer p-2" @click="openInfoPanel(user)">🧑‍⚕️</td>
                             <td class="p-2">{{ user.phone }}</td>
                             <td class="p-2">{{ user.email }}</td>
                             <td class="p-2">
@@ -600,7 +575,7 @@ function goToPage(page: number) {
                             <td class="p-2">
                                 <div class="flex justify-center gap-2">
                                     <button title="Редактировать" @click="editSocialWorker(user)">✏️</button>
-                                    <button title="Удалить">🗑️</button>
+                                    <button title="Удалить" @click="deleteUser(user.id)" class="text-red-500 hover:scale-110">🗑️</button>
                                 </div>
                             </td>
                         </tr>
@@ -661,7 +636,7 @@ function goToPage(page: number) {
                 <UserFormWrapper
                     v-if="showForm"
                     :active-tab="activeTab"
-                    :model-value="activeTab === 'admins' ? selectedAdmin : selectedSocialWorker"
+                    :model-value="activeTab === 'admins' ? selectedAdmin : activeTab === 'social_workers' ? selectedSocialWorker : selectedClient"
                     :is-edit="isEdit"
                     @submit="handleUserSubmit"
                     @cancel="closeForm"

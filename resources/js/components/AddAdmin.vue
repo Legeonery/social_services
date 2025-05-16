@@ -78,7 +78,7 @@ const cancel = () => {
                 </div>
 
                 <div class="flex justify-end gap-2 pt-4">
-                    <button type="button" @click="$emit('cancel')" class="rounded bg-gray-200 px-4 py-2 dark:bg-gray-600 dark:text-white">
+                    <button type="button" @click="cancel" class="rounded bg-gray-200 px-4 py-2 dark:bg-gray-600 dark:text-white">
                         Отмена
                     </button>
                     <button type="submit" class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
