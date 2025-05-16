@@ -18,6 +18,6 @@ defineProps<Props>();
         :class="className"
         v-bind="$attrs"
         alt="Логотип Отдела социального обслуживания населения"
-        style="width: 120px; height: auto; border-radius: 10px"
+        style="width: 120px; height: auto;"
     />
 </template>
