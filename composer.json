@@ -15,6 +15,7 @@
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "laravel/vonage-notification-channel": "^3.3",
+        "spatie/laravel-permission": "^6.18",
         "tightenco/ziggy": "^2.4",
         "vonage/client": "^4.1"
     },

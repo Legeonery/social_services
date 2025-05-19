@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watchEffect } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
     modelValue: Object,
@@ -9,10 +10,12 @@ const props = defineProps({
 const emit = defineEmits(['submit', 'cancel']);
 
 const form = ref({
-    fullName: '',
+    lastName: '',
+    firstName: '',
+    middleName: '',
     phone: '',
     email: '',
-    status: '',
+    status: '', // используется только при редактировании
 });
 
 watchEffect(() => {
@@ -35,6 +38,18 @@ const handleSubmit = () => {
 
 const cancel = () => {
     emit('cancel');
+};
+
+const submitAdmin = async (formData) => {
+    try {
+        await axios.post('/admin-users', formData);
+        // Закрыть модалку, обновить список, показать уведомление
+    } catch (error) {
+        if (error.response?.data?.errors) {
+            console.error(error.response.data.errors);
+            // Обработка и вывод ошибок пользователю
+        }
+    }
 };
 </script>
 
@@ -81,7 +96,7 @@ const cancel = () => {
                     <button type="button" @click="cancel" class="rounded bg-gray-200 px-4 py-2 dark:bg-gray-600 dark:text-white">
                         Отмена
                     </button>
-                    <button type="submit" class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                    <button type="submit" @click=" isEdit ? '' : 'submitAdmin' " class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
                         {{ isEdit ? 'Сохранить' : 'Добавить' }}
                     </button>
                 </div>
