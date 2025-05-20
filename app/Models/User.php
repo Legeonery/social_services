@@ -53,9 +53,7 @@ class User extends Authenticatable
     // Клиент -> соцработник (один соцработник)
     public function socialWorkers()
     {
-        return $this->belongsToMany(User::class, 'client_social_worker', 'client_id', 'social_worker_id')
-            ->withPivot('type')
-            ->withTimestamps();
+        return $this->belongsToMany(User::class, 'client_social_worker', 'client_id', 'social_worker_id');
     }
 
     // Соцработник -> клиенты

@@ -10,7 +10,7 @@ class UserController extends Controller
 {
     public function user_data()
     {
-        $clients = User::role('client')
+        $clients = User::where('role', 'client')
             ->with(['socialWorkers' => function ($q) {
                 $q->select('users.id', 'name');
             }])
@@ -24,13 +24,13 @@ class UserController extends Controller
                     'phone' => $user->phone,
                     'email' => $user->email,
                     'status' => $user->status ?? 'Активный',
-                    'type' => $user->pivot->type ?? '', // если нужно
+                    'type' => '', // убрал pivot, так как не используется
                     'social_worker_name' => $user->socialWorkers->pluck('name')->implode(', '),
                     'tab' => 'clients',
                 ];
             });
-        var_dump($clients);
-        $socialWorkers = User::role('social_worker')->get()->map(function ($user) {
+
+        $socialWorkers = User::where('role', 'social_worker')->get()->map(function ($user) {
             return [
                 'id' => $user->id,
                 'first_name' => $user->first_name ?? '',
@@ -43,7 +43,7 @@ class UserController extends Controller
             ];
         });
 
-        $admins = User::role('admin')->get()->map(function ($user) {
+        $admins = User::where('role', 'admin')->get()->map(function ($user) {
             return [
                 'id' => $user->id,
                 'first_name' => $user->first_name ?? '',
@@ -55,7 +55,7 @@ class UserController extends Controller
                 'tab' => 'admins',
             ];
         });
-
+        var_dump($admins,$socialWorkers,$clients);
         return Inertia::render('Users', [
             'users' => $clients->merge($socialWorkers)->merge($admins),
         ]);
