@@ -2,7 +2,8 @@
 import UserFormWrapper from '@/components/UserFormWrapper.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import axios from 'axios';
+import { computed, onMounted, ref } from 'vue';
 
 type UserTab = 'clients' | 'social_workers' | 'admins';
 
@@ -16,293 +17,51 @@ const selectedUser = ref<any | null>(null);
 const sortDirection = ref<'asc' | 'desc'>('asc');
 const sortBy = ref('');
 
-const users = ref([
-    // 10 клиентов
-    {
-        id: 1,
-        fullName: 'Иван Иванов',
-        phone: '+7 123 456-78-90',
-        email: 'ivanov@example.com',
-        status: 'Активный',
-        type: 'бюджетный',
-        socialWorker: 'Петров П.П.',
-        tab: 'clients',
-    },
-    {
-        id: 2,
-        fullName: 'Сергей Смирнов',
-        phone: '+7 987 654-32-10',
-        email: 'smirnov@example.com',
-        status: 'Неактивный',
-        type: 'платный',
-        socialWorker: 'Петров П.П.',
-        tab: 'clients',
-    },
-    {
-        id: 3,
-        fullName: 'Мария Кузнецова',
-        phone: '+7 900 111-22-33',
-        email: 'maria@example.com',
-        status: 'Активный',
-        type: 'бюджетный',
-        socialWorker: 'Сидорова И.И.',
-        tab: 'clients',
-    },
-    {
-        id: 4,
-        fullName: 'Анна Белова',
-        phone: '+7 901 222-33-44',
-        email: 'anna@example.com',
-        status: 'Активный',
-        type: 'платный',
-        socialWorker: 'Сидорова И.И.',
-        tab: 'clients',
-    },
-    {
-        id: 5,
-        fullName: 'Дмитрий Орлов',
-        phone: '+7 902 333-44-55',
-        email: 'orlov@example.com',
-        status: 'Неактивный',
-        type: 'бюджетный',
-        socialWorker: 'Петров П.П.',
-        tab: 'clients',
-    },
-    {
-        id: 6,
-        fullName: 'Наталья Егорова',
-        phone: '+7 903 444-55-66',
-        email: 'natalya@example.com',
-        status: 'Активный',
-        type: 'платный',
-        socialWorker: 'Сидорова И.И.',
-        tab: 'clients',
-    },
-    {
-        id: 7,
-        fullName: 'Алексей Козлов',
-        phone: '+7 904 555-66-77',
-        email: 'kozlova@example.com',
-        status: 'Неактивный',
-        type: 'бюджетный',
-        socialWorker: 'Петров П.П.',
-        tab: 'clients',
-    },
-    {
-        id: 8,
-        fullName: 'Оксана Лебедева',
-        phone: '+7 905 666-77-88',
-        email: 'oksana@example.com',
-        status: 'Активный',
-        type: 'платный',
-        socialWorker: 'Сидорова И.И.',
-        tab: 'clients',
-    },
-    {
-        id: 9,
-        fullName: 'Павел Морозов',
-        phone: '+7 906 777-88-99',
-        email: 'pavel@example.com',
-        status: 'Активный',
-        type: 'бюджетный',
-        socialWorker: 'Петров П.П.',
-        tab: 'clients',
-    },
-    {
-        id: 10,
-        fullName: 'Татьяна Васильева',
-        phone: '+7 907 888-99-00',
-        email: 'tanya@example.com',
-        status: 'Неактивный',
-        type: 'платный',
-        socialWorker: 'Сидорова И.И.',
-        tab: 'clients',
-    },
+const users = ref<any[]>([]);
 
-    // 10 соц. работников
-    {
-        id: 11,
-        fullName: 'Ольга Сидорова',
-        phone: '+7 999 111-22-33',
-        email: 'olga@example.com',
-        status: 'В отпуске',
-        tab: 'social_workers',
-        socialWorkerClients: ['Иван Иванов', 'Сергей Смирнов'],
-    },
-    {
-        id: 12,
-        fullName: 'Инна Захарова',
-        phone: '+7 999 000-11-22',
-        email: 'inna@example.com',
-        status: 'Активный',
-        tab: 'social_workers',
-        socialWorkerClients: ['Мария Кузнецова'],
-    },
-    {
-        id: 13,
-        fullName: 'Юлия Новикова',
-        phone: '+7 999 123-45-67',
-        email: 'yulia@example.com',
-        status: 'На больничном',
-        tab: 'social_workers',
-        socialWorkerClients: ['Анна Белова'],
-    },
-    {
-        id: 14,
-        fullName: 'Игорь Петров',
-        phone: '+7 999 222-33-44',
-        email: 'igor@example.com',
-        status: 'Уволенный',
-        tab: 'social_workers',
-        socialWorkerClients: ['Дмитрий Орлов'],
-    },
-    {
-        id: 15,
-        fullName: 'Александр Миронов',
-        phone: '+7 999 333-44-55',
-        email: 'mironov@example.com',
-        status: 'Активный',
-        tab: 'social_workers',
-        socialWorkerClients: ['Оксана Лебедева'],
-    },
-    {
-        id: 16,
-        fullName: 'Тамара Киселева',
-        phone: '+7 999 444-55-66',
-        email: 'tamara@example.com',
-        status: 'Активный',
-        tab: 'social_workers',
-        socialWorkerClients: ['Павел Морозов'],
-    },
-    {
-        id: 17,
-        fullName: 'Владимир Тарасов',
-        phone: '+7 999 555-66-77',
-        email: 'vlad@example.com',
-        status: 'На больничном',
-        tab: 'social_workers',
-        socialWorkerClients: ['Татьяна Васильева'],
-    },
-    {
-        id: 18,
-        fullName: 'Светлана Федорова',
-        phone: '+7 999 666-77-88',
-        email: 'sveta@example.com',
-        status: 'Уволенный',
-        tab: 'social_workers',
-        socialWorkerClients: [],
-    },
-    {
-        id: 19,
-        fullName: 'Роман Алексеев',
-        phone: '+7 999 777-88-99',
-        email: 'roman@example.com',
-        status: 'Активный',
-        tab: 'social_workers',
-        socialWorkerClients: [],
-    },
-    {
-        id: 20,
-        fullName: 'Елена Громова',
-        phone: '+7 999 888-99-00',
-        email: 'elena@example.com',
-        status: 'В отпуске',
-        tab: 'social_workers',
-        socialWorkerClients: [],
-    },
+onMounted(async () => {
+    try {
+        const response = await axios.get('/users_data');
+        users.value = response.data.users.map((user: any) => {
+            const fullName = `${user.last_name} ${user.first_name} ${user.middle_name || ''}`.trim();
 
-    // 10 администраторов
-    {
-        id: 21,
-        fullName: 'Админ Системы',
-        phone: '+7 777 123-45-67',
-        email: 'admin@example.com',
-        status: 'Активный',
-        socialWorker: '-',
-        tab: 'admins',
-    },
-    {
-        id: 22,
-        fullName: 'Михаил Логинов',
-        phone: '+7 777 000-11-22',
-        email: 'mikhail@example.com',
-        status: 'Уволенный',
-        socialWorker: '-',
-        tab: 'admins',
-    },
-    {
-        id: 23,
-        fullName: 'Светлана Иванова',
-        phone: '+7 777 111-22-33',
-        email: 'svet@example.com',
-        status: 'Активный',
-        socialWorker: '-',
-        tab: 'admins',
-    },
-    {
-        id: 24,
-        fullName: 'Андрей Колесников',
-        phone: '+7 777 222-33-44',
-        email: 'andrey@example.com',
-        status: 'Уволенный',
-        socialWorker: '-',
-        tab: 'admins',
-    },
-    {
-        id: 25,
-        fullName: 'Тимур Галимов',
-        phone: '+7 777 333-44-55',
-        email: 'timur@example.com',
-        status: 'Активный',
-        socialWorker: '-',
-        tab: 'admins',
-    },
-    {
-        id: 26,
-        fullName: 'Ирина Шестакова',
-        phone: '+7 777 444-55-66',
-        email: 'irina@example.com',
-        status: 'Уволенный',
-        socialWorker: '-',
-        tab: 'admins',
-    },
-    {
-        id: 27,
-        fullName: 'Рустам Власов',
-        phone: '+7 777 555-66-77',
-        email: 'rustam@example.com',
-        status: 'Активный',
-        socialWorker: '-',
-        tab: 'admins',
-    },
-    {
-        id: 28,
-        fullName: 'Марина Ларина',
-        phone: '+7 777 666-77-88',
-        email: 'marina@example.com',
-        status: 'Уволенный',
-        socialWorker: '-',
-        tab: 'admins',
-    },
-    {
-        id: 29,
-        fullName: 'Георгий Соловьев',
-        phone: '+7 777 777-88-99',
-        email: 'george@example.com',
-        status: 'Активный',
-        socialWorker: '-',
-        tab: 'admins',
-    },
-    {
-        id: 30,
-        fullName: 'Валентина Соколова',
-        phone: '+7 777 888-99-00',
-        email: 'valentina@example.com',
-        status: 'Уволенный',
-        socialWorker: '-',
-        tab: 'admins',
-    },
-]);
+            if (user.tab === 'clients') {
+                return {
+                    id: user.id,
+                    fullName,
+                    phone: user.phone,
+                    email: user.email,
+                    status: user.status,
+                    type: user.type ?? '',
+                    socialWorker: user.social_worker_name ?? '',
+                    tab: 'clients',
+                };
+            } else if (user.tab === 'social_workers') {
+                return {
+                    id: user.id,
+                    fullName,
+                    phone: user.phone,
+                    email: user.email,
+                    status: user.status,
+                    tab: 'social_workers',
+                };
+            } else {
+                return {
+                    id: user.id,
+                    fullName,
+                    phone: user.phone,
+                    email: user.email,
+                    status: user.status,
+                    tab: 'admins',
+                };
+            }
+        });
+    } catch (error) {
+        console.error('Ошибка загрузки пользователей:', error);
+    }
+});
+
+console.log(users);
 
 const showForm = ref(false);
 const isEdit = ref(false);

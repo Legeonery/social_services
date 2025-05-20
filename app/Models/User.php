@@ -24,6 +24,8 @@ class User extends Authenticatable
         'email',
         'phone',
         'password',
+        'status',
+        'role',
     ];
 
     /**
@@ -47,5 +49,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    // Клиент -> соцработник (один соцработник)
+    public function socialWorkers()
+    {
+        return $this->belongsToMany(User::class, 'client_social_worker', 'client_id', 'social_worker_id')
+            ->withPivot('type')
+            ->withTimestamps();
+    }
+
+    // Соцработник -> клиенты
+    public function clients()
+    {
+        return $this->belongsToMany(User::class, 'client_social_worker', 'social_worker_id', 'client_id')
+            ->withPivot('type')
+            ->withTimestamps();
     }
 }

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watchEffect } from 'vue';
-import axios from 'axios';
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
     modelValue: Object,
@@ -15,7 +15,6 @@ const form = ref({
     middleName: '',
     phone: '',
     email: '',
-    status: '', // используется только при редактировании
 });
 
 watchEffect(() => {
@@ -33,24 +32,21 @@ watchEffect(() => {
 });
 
 const handleSubmit = () => {
-    emit('submit', form.value);
+    router.post(route('users.admins.store'), form.value, {
+    onSuccess: () => {
+        // возможно, закрыть модалку или показать сообщение
+        emit('cancel');
+    },
+    onError: (errors) => {
+        console.error(errors); // покажет ошибки в консоли
+    },
+});
 };
 
 const cancel = () => {
     emit('cancel');
 };
 
-const submitAdmin = async (formData) => {
-    try {
-        await axios.post('/admin-users', formData);
-        // Закрыть модалку, обновить список, показать уведомление
-    } catch (error) {
-        if (error.response?.data?.errors) {
-            console.error(error.response.data.errors);
-            // Обработка и вывод ошибок пользователю
-        }
-    }
-};
 </script>
 
 <template>
@@ -96,7 +92,7 @@ const submitAdmin = async (formData) => {
                     <button type="button" @click="cancel" class="rounded bg-gray-200 px-4 py-2 dark:bg-gray-600 dark:text-white">
                         Отмена
                     </button>
-                    <button type="submit" @click=" isEdit ? '' : 'submitAdmin' " class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                    <button type="submit" class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
                         {{ isEdit ? 'Сохранить' : 'Добавить' }}
                     </button>
                 </div>

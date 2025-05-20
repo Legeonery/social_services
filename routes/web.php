@@ -2,6 +2,7 @@
 use App\Http\Controllers\Auth\AdminUserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -29,9 +30,9 @@ Route::get('schedule/{date}', function ($date) {
     ]);
 })->middleware(['auth', 'verified'])->name('schedule.day');
 
-Route::middleware(['auth', 'can:create-admins'])->group(function () {
-    Route::post('/admin-users', [AdminUserController::class, 'store'])->name('admin-users.store');
-});
+Route::post('/users/admins', [AdminUserController::class, 'store'])->name('users.admins.store');
+
+Route::get('/users_data', [UserController::class, 'user_data'])->name('users_data');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
