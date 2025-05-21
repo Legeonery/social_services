@@ -26,6 +26,7 @@ class User extends Authenticatable
         'password',
         'status',
         'role',
+        'client_type_id',
     ];
 
     /**
@@ -62,5 +63,9 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'client_social_worker', 'social_worker_id', 'client_id')
             ->withPivot('type')
             ->withTimestamps();
+    }
+    public function clientType()
+    {
+        return $this->belongsTo(ClientType::class, 'client_type_id');
     }
 }

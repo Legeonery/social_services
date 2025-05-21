@@ -11,20 +11,20 @@ class UserController extends Controller
     public function user_data()
     {
         $clients = User::where('role', 'client')
-            ->with(['socialWorkers' => function ($q) {
-                $q->select('users.id', 'name');
-            }])
+            ->with([
+                'clientType', // 👈 загрузка типа клиента
+                'socialWorkers' => fn($q) => $q->select('users.id', 'name'),
+            ])
             ->get()
             ->map(function ($user) {
                 return [
                     'id' => $user->id,
-                    'first_name' => $user->first_name ?? '',
-                    'last_name' => $user->last_name ?? '',
-                    'middle_name' => $user->middle_name ?? '',
+                    'name' => $user->name ?? '',
                     'phone' => $user->phone,
                     'email' => $user->email,
                     'status' => $user->status ?? 'Активный',
-                    'type' => '', // убрал pivot, так как не используется
+                    'type' => optional($user->clientType)->name, // <- имя типа
+                    'client_type_id' => $user->client_type_id,   // <- сам ID
                     'social_worker_name' => $user->socialWorkers->pluck('name')->implode(', '),
                     'tab' => 'clients',
                 ];
@@ -33,9 +33,7 @@ class UserController extends Controller
         $socialWorkers = User::where('role', 'social_worker')->get()->map(function ($user) {
             return [
                 'id' => $user->id,
-                'first_name' => $user->first_name ?? '',
-                'last_name' => $user->last_name ?? '',
-                'middle_name' => $user->middle_name ?? '',
+                'name' => $user->name ?? '',
                 'phone' => $user->phone,
                 'email' => $user->email,
                 'status' => $user->status ?? 'Активный',
@@ -46,18 +44,16 @@ class UserController extends Controller
         $admins = User::where('role', 'admin')->get()->map(function ($user) {
             return [
                 'id' => $user->id,
-                'first_name' => $user->first_name ?? '',
-                'last_name' => $user->last_name ?? '',
-                'middle_name' => $user->middle_name ?? '',
+                'name' => $user->name ?? '',
                 'phone' => $user->phone,
                 'email' => $user->email,
                 'status' => $user->status ?? 'Активный',
                 'tab' => 'admins',
             ];
         });
-        var_dump($admins,$socialWorkers,$clients);
-        return Inertia::render('Users', [
-            'users' => $clients->merge($socialWorkers)->merge($admins),
+
+        return response()->json([
+            'users' => $clients->merge($socialWorkers)->merge($admins)
         ]);
     }
 }

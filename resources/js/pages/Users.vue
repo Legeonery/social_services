@@ -23,23 +23,22 @@ onMounted(async () => {
     try {
         const response = await axios.get('/users_data');
         users.value = response.data.users.map((user: any) => {
-            const fullName = `${user.last_name} ${user.first_name} ${user.middle_name || ''}`.trim();
-
             if (user.tab === 'clients') {
                 return {
                     id: user.id,
-                    fullName,
+                    fullName: user.name,
                     phone: user.phone,
                     email: user.email,
-                    status: user.status,
+                    status: user.status === 'active' ? 'Активный' : user.status === 'inactive' ? 'Не активный' : user.status,
                     type: user.type ?? '',
+                    client_type_id: user.client_type_id ?? null, // 👈 добавьте это
                     socialWorker: user.social_worker_name ?? '',
                     tab: 'clients',
                 };
             } else if (user.tab === 'social_workers') {
                 return {
                     id: user.id,
-                    fullName,
+                    fullName: user.name,
                     phone: user.phone,
                     email: user.email,
                     status: user.status,
@@ -48,10 +47,10 @@ onMounted(async () => {
             } else {
                 return {
                     id: user.id,
-                    fullName,
+                    fullName: user.name,
                     phone: user.phone,
                     email: user.email,
-                    status: user.status,
+                    status: user.status === 'active' ? 'Активный' : user.status === 'inactive' ? 'Уволенный' : user.status,
                     tab: 'admins',
                 };
             }
@@ -104,32 +103,50 @@ const closeForm = () => {
     selectedSocialWorker.value = null;
 };
 
-const handleUserSubmit = (formData: any) => {
-    const entry = {
-        ...formData,
-        fullName: `${formData.lastName} ${formData.firstName} ${formData.middleName || ''}`.trim(),
-        tab: activeTab.value,
-        status: isEdit.value ? formData.status : 'Активный',
+const handleUserSubmit = (userData: any) => {
+    const fullName = userData.fullName ?? userData.name ?? `${userData.lastName} ${userData.firstName} ${userData.middleName || ''}`.trim();
+    const status = userData.status ?? 'Активный';
+    const tab = userData.tab ?? activeTab.value;
+
+    const newUser = {
+        ...userData,
+        fullName,
+        status,
+        tab,
     };
 
-    let selectedRef;
-    if (activeTab.value === 'clients') selectedRef = selectedClient;
-    else if (activeTab.value === 'social_workers') selectedRef = selectedSocialWorker;
-    else selectedRef = selectedAdmin;
-
-    if (isEdit.value && selectedRef.value) {
-        const index = users.value.findIndex((u) => u.id === selectedRef.value.id);
-        if (index !== -1) users.value[index] = { ...entry, id: selectedRef.value.id };
+    // Проверка, существует ли уже такой пользователь (если это редактирование)
+    const index = users.value.findIndex((u) => u.id === newUser.id);
+    if (index !== -1) {
+        users.value[index] = newUser;
     } else {
-        const newId = users.value.length ? Math.max(...users.value.map((u) => u.id)) + 1 : 1;
-        users.value.push({ ...entry, id: newId });
+        users.value.push(newUser);
     }
 
     closeForm();
 };
 // Удаление пользователя
-const deleteUser = (id: number) => {
-    users.value = users.value.filter((u) => u.id !== id);
+const deleteUser = async (id: number) => {
+    const user = users.value.find((u) => u.id === id);
+    if (!user) return;
+
+    if (!confirm('Вы уверены, что хотите удалить этого пользователя?')) return;
+
+    let url = '';
+    if (user.tab === 'admins') {
+        url = `/users/admins/${id}`;
+    } else if (user.tab === 'social_workers') {
+        url = `/users/social_workers/${id}`;
+    } else if (user.tab === 'clients') {
+        url = `/users/clients/${id}`;
+    }
+
+    try {
+        await axios.delete(url);
+        users.value = users.value.filter((u) => u.id !== id);
+    } catch (error) {
+        console.error('Ошибка при удалении пользователя:', error);
+    }
 };
 
 // Открытие панели информации
