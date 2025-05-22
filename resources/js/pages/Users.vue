@@ -29,10 +29,11 @@ onMounted(async () => {
                     fullName: user.name,
                     phone: user.phone,
                     email: user.email,
-                    status: user.status === 'active' ? 'Активный' : user.status === 'inactive' ? 'Не активный' : user.status,
+                    status: user.status === 'active' ? 'Активный' : user.status === 'inactive' ? 'Неактивный' : user.status,
                     type: user.type ?? '',
-                    client_type_id: user.client_type_id ?? null, // 👈 добавьте это
+                    client_type_id: user.client_type_id ?? null,
                     socialWorker: user.social_worker_name ?? '',
+                    socialWorkerType: user.social_worker_type ?? '',
                     tab: 'clients',
                 };
             } else if (user.tab === 'social_workers') {
@@ -41,7 +42,16 @@ onMounted(async () => {
                     fullName: user.name,
                     phone: user.phone,
                     email: user.email,
-                    status: user.status,
+                    status:
+                        user.status === 'active'
+                            ? 'Активный'
+                            : user.status === 'inactive'
+                              ? 'Уволенный'
+                              : user.status === 'on_vacation'
+                                ? 'В отпуске'
+                                : user.status === 'sick_leave'
+                                  ? 'На больничном'
+                                  : user.status,
                     tab: 'social_workers',
                 };
             } else {
@@ -290,7 +300,13 @@ function goToPage(page: number) {
                             </td>
                             <td class="p-2">{{ user.phone }}</td>
                             <td class="p-2">{{ user.email }}</td>
-                            <td class="p-2">{{ user.socialWorker }}</td>
+                            <td class="p-2">
+                                <span v-if="user.socialWorker">
+                                    {{ user.socialWorker }}
+                                    <span class="text-xs text-gray-400">({{ user.socialWorkerType }})</span>
+                                </span>
+                                <span v-else class="text-gray-400">–</span>
+                            </td>
                             <td class="p-2">{{ user.type }}</td>
                             <td class="p-2">
                                 <span :class="user.status === 'Активный' ? 'text-green-600' : 'text-gray-400'">{{ user.status }}</span>
@@ -322,7 +338,7 @@ function goToPage(page: number) {
                                     {{ sortDirection === 'asc' ? '▲' : '▼' }}
                                 </span>
                             </th>
-                            <th class="p-2 text-left">Управление</th>
+                            <th class="p-2 text-center">Управление</th>
                         </tr>
                     </thead>
                     <tbody>

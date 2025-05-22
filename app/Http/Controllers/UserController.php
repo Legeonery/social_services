@@ -4,28 +4,43 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Inertia\Inertia;
 
 class UserController extends Controller
 {
     public function user_data()
     {
+        $today = Carbon::today()->toDateString();
+
         $clients = User::where('role', 'client')
-            ->with([
-                'clientType', // 👈 загрузка типа клиента
-                'socialWorkers' => fn($q) => $q->select('users.id', 'name'),
-            ])
+            ->with(['clientType', 'socialWorkers' => function ($query) {
+                $query->withPivot(['temporary', 'from', 'to']);
+            }])
             ->get()
-            ->map(function ($user) {
+            ->map(function ($user) use ($today) {
+                // Найдём текущего активного соцработника
+                $activeWorker = $user->socialWorkers
+                    ->filter(function ($worker) use ($today) {
+                        $pivot = $worker->pivot;
+                        if (!$pivot->temporary) {
+                            return true; // основной
+                        }
+                        return $pivot->from <= $today && $pivot->to >= $today; // временный, но активный
+                    })
+                    ->sortByDesc(fn($w) => $w->pivot->temporary) // временный > основной (чтобы временный перебивал основного)
+                    ->first();
+
                 return [
                     'id' => $user->id,
                     'name' => $user->name ?? '',
                     'phone' => $user->phone,
                     'email' => $user->email,
                     'status' => $user->status ?? 'Активный',
-                    'type' => optional($user->clientType)->name, // <- имя типа
-                    'client_type_id' => $user->client_type_id,   // <- сам ID
-                    'social_worker_name' => $user->socialWorkers->pluck('name')->implode(', '),
+                    'type' => optional($user->clientType)->name,
+                    'client_type_id' => $user->client_type_id,
+                    'social_worker_name' => $activeWorker?->name,
+                    'social_worker_type' => $activeWorker?->pivot->temporary ? 'временный' : 'основной',
                     'tab' => 'clients',
                 ];
             });
@@ -53,7 +68,46 @@ class UserController extends Controller
         });
 
         return response()->json([
-            'users' => $clients->merge($socialWorkers)->merge($admins)
+            'users' => $clients->merge($socialWorkers)->merge($admins),
         ]);
+    }
+    public function unassignedClients(Request $request)
+    {
+        $workerId = $request->query('worker_id');
+        $today = Carbon::today()->toDateString();
+
+        $clients = User::where('role', 'client')
+            ->where('status', 'active')
+            ->where(function ($query) use ($workerId, $today) {
+                $query
+                    // 1. Нет соцработника
+                    ->whereDoesntHave('socialWorkers')
+
+                    // 2. Прикреплён к текущему
+                    ->orWhereHas('socialWorkers', function ($q) use ($workerId) {
+                        $q->where('users.id', $workerId);
+                    })
+
+                    // 3. Прикреплён к временно отсутствующим
+                    ->orWhereHas('socialWorkers.absences', function ($q) use ($today) {
+                        $q->whereDate('from', '<=', $today)
+                            ->whereDate('to', '>=', $today);
+                    });
+            })
+
+            // 4. Исключаем клиентов, временно прикреплённых к другим соцработникам
+            ->whereDoesntHave('socialWorkers', function ($q) use ($workerId, $today) {
+                $q->where('users.id', '!=', $workerId)
+                    ->where('client_social_worker.temporary', true)
+                    ->where(function ($q) use ($today) {
+                        $q->whereDate('client_social_worker.from', '<=', $today)
+                            ->whereDate('client_social_worker.to', '>=', $today);
+                    });
+            })
+
+            ->select('id', 'name')
+            ->get();
+
+        return response()->json(['clients' => $clients]);
     }
 }

@@ -11,6 +11,9 @@ class CreateClientSocialWorkerTable extends Migration
         Schema::create('client_social_worker', function (Blueprint $table) {
             $table->unsignedBigInteger('client_id');
             $table->unsignedBigInteger('social_worker_id');
+            $table->boolean('temporary')->default(false);
+            $table->date('from')->nullable();
+            $table->date('to')->nullable();
             $table->timestamps();
 
             $table->primary(['client_id', 'social_worker_id']);

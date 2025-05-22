@@ -22,10 +22,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::post('/users/admins', [AdminUserController::class, 'store'])->name('users.admins.store');
 Route::put('/users/admins/{id}', [AdminUserController::class, 'update'])->name('users.admins.update');
 Route::delete('/users/admins/{id}', [AdminUserController::class, 'destroy']);
+
+Route::post('/users/social-workers', [SocialWorkerUserController::class, 'store'])->name('users.social_workers.store');
+Route::put('/users/social-workers/{id}', [SocialWorkerUserController::class, 'update'])->name('users.social_workers.update');
 Route::delete('/users/social_workers/{id}', [SocialWorkerUserController::class, 'destroy']);
+Route::get('/users/social-workers/{id}/clients', [SocialWorkerUserController::class, 'getClients']);
+
 Route::post('/users/clients', [ClientUserController::class, 'store']);
 Route::put('/users/clients/{id}', [ClientUserController::class, 'update']);
 Route::delete('/users/clients/{id}', [ClientUserController::class, 'destroy']);
+
+Route::get('/users/unassigned-clients', [UserController::class, 'unassignedClients']);
+
+Route::get('/users/social-workers/{id}/absences', [SocialWorkerUserController::class, 'getAbsences']);
+Route::delete('/absences/{id}', [SocialWorkerUserController::class, 'deleteAbsence']);
+Route::put('/absences/{id}', [SocialWorkerUserController::class, 'updateAbsence']);
 
 Route::get('/client-types', function () {
     return ClientType::select('id', 'name')->get();

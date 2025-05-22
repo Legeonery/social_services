@@ -54,18 +54,24 @@ class User extends Authenticatable
     // Клиент -> соцработник (один соцработник)
     public function socialWorkers()
     {
-        return $this->belongsToMany(User::class, 'client_social_worker', 'client_id', 'social_worker_id');
+        return $this->belongsToMany(User::class, 'client_social_worker', 'client_id', 'social_worker_id')
+            ->withPivot('temporary', 'from', 'to')
+            ->withTimestamps();
     }
 
     // Соцработник -> клиенты
     public function clients()
     {
         return $this->belongsToMany(User::class, 'client_social_worker', 'social_worker_id', 'client_id')
-            ->withPivot('type')
+            ->withPivot('temporary', 'from', 'to')
             ->withTimestamps();
     }
     public function clientType()
     {
         return $this->belongsTo(ClientType::class, 'client_type_id');
+    }
+    public function absences()
+    {
+        return $this->hasMany(\App\Models\SocialWorkerAbsence::class, 'user_id');
     }
 }
