@@ -80,33 +80,34 @@ class UserController extends Controller
             ->where('status', 'active')
             ->where(function ($query) use ($workerId, $today) {
                 $query
-                    // 1. Нет соцработника
                     ->whereDoesntHave('socialWorkers')
-
-                    // 2. Прикреплён к текущему
-                    ->orWhereHas('socialWorkers', function ($q) use ($workerId) {
-                        $q->where('users.id', $workerId);
-                    })
-
-                    // 3. Прикреплён к временно отсутствующим
+                    ->orWhereHas('socialWorkers', fn($q) => $q->where('users.id', $workerId))
                     ->orWhereHas('socialWorkers.absences', function ($q) use ($today) {
                         $q->whereDate('from', '<=', $today)
                             ->whereDate('to', '>=', $today);
                     });
             })
-
-            // 4. Исключаем клиентов, временно прикреплённых к другим соцработникам
             ->whereDoesntHave('socialWorkers', function ($q) use ($workerId, $today) {
                 $q->where('users.id', '!=', $workerId)
                     ->where('client_social_worker.temporary', true)
-                    ->where(function ($q) use ($today) {
-                        $q->whereDate('client_social_worker.from', '<=', $today)
-                            ->whereDate('client_social_worker.to', '>=', $today);
-                    });
+                    ->whereDate('client_social_worker.from', '<=', $today)
+                    ->whereDate('client_social_worker.to', '>=', $today);
             })
-
             ->select('id', 'name')
-            ->get();
+            ->addSelect([
+                'hasPrimaryWorker' => \DB::table('client_social_worker')
+                    ->selectRaw('count(*)')
+                    ->whereColumn('client_social_worker.client_id', 'users.id')
+                    ->where('client_social_worker.temporary', false)
+            ])
+            ->get()
+            ->map(function ($client) {
+                return [
+                    'id' => $client->id,
+                    'name' => $client->name,
+                    'hasPrimaryWorker' => $client->hasPrimaryWorker > 0,
+                ];
+            });
 
         return response()->json(['clients' => $clients]);
     }

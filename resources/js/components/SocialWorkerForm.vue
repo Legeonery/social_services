@@ -121,6 +121,7 @@ watchEffect(async () => {
                 temporary: !!c.temporary,
                 period: c.period ?? { from: '', to: '' },
                 hasPrimaryWorker: !!c.hasPrimaryWorker,
+                absencePeriod: c.absencePeriod || null,
             }));
 
             const { data } = await axios.get('/users/unassigned-clients', {
@@ -255,6 +256,22 @@ const handleSubmit = async () => {
 const cancel = () => {
     emit('cancel');
 };
+watchEffect(() => {
+    attachedClients.value.forEach((client) => {
+        if (!client.isExisting && client.id) {
+            const found = allClients.value.find((c) => c.id === client.id);
+
+            if (found) {
+                client.hasPrimaryWorker = found.hasPrimaryWorker;
+
+                // Если есть основной соц. работник, то временно и disabled
+                if (found.hasPrimaryWorker) {
+                    client.temporary = true;
+                }
+            }
+        }
+    });
+});
 </script>
 
 <template>
@@ -384,8 +401,20 @@ const cancel = () => {
 
                         <!-- Период -->
                         <template v-if="client.temporary">
-                            <input type="date" v-model="client.period.from" class="rounded p-2 dark:bg-gray-600 dark:text-white" />
-                            <input type="date" v-model="client.period.to" class="rounded p-2 dark:bg-gray-600 dark:text-white" />
+                            <input
+                                type="date"
+                                v-model="client.period.from"
+                                :min="client.absencePeriod?.from || today"
+                                :max="client.absencePeriod?.to || null"
+                                class="rounded p-2 dark:bg-gray-600 dark:text-white"
+                            />
+                            <input
+                                type="date"
+                                v-model="client.period.to"
+                                :min="client.period.from || client.absencePeriod?.from || today"
+                                :max="client.absencePeriod?.to || null"
+                                class="rounded p-2 dark:bg-gray-600 dark:text-white"
+                            />
                         </template>
 
                         <!-- Кнопка удаления -->

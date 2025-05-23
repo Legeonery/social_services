@@ -3,65 +3,50 @@ import AddServiceForm from '@/components/AddServiceForm.vue';
 import BaseModal from '@/components/BaseModal.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import axios from 'axios';
+import { computed, onMounted, ref } from 'vue';
 
 type ServiceType = 'main' | 'additional';
+type Service = {
+    id: number;
+    name: string;
+    code: string;
+    description: string;
+    price: number;
+    active: boolean;
+    type: ServiceType;
+};
 
-const services = ref([
-    { id: 1, name: 'Консультация', code: 'S001', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 2, name: 'Консультация', code: 'S002', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 3, name: 'Консультация', code: 'S003', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 4, name: 'Консультация', code: 'S004', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 5, name: 'Консультация', code: 'S005', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 6, name: 'Консультация', code: 'S006', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 7, name: 'Консультация', code: 'S007', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 8, name: 'Консультация', code: 'S008', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 9, name: 'Консультация', code: 'S009', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 10, name: 'Диагностика', code: 'S0010', description: 'Краткое описание', price: 1500, active: false, type: 'main' },
-    { id: 11, name: 'Диагностика', code: 'S0011', description: 'Краткое описание', price: 1500, active: false, type: 'main' },
-    { id: 12, name: 'Диагностика', code: 'S0012', description: 'Краткое описание', price: 1500, active: false, type: 'main' },
-    { id: 13, name: 'Диагностика', code: 'S0013', description: 'Краткое описание', price: 1500, active: false, type: 'main' },
-    { id: 14, name: 'Диагностика', code: 'S0014', description: 'Краткое описание', price: 1500, active: false, type: 'main' },
-    { id: 15, name: 'Диагностика', code: 'S0015', description: 'Краткое описание', price: 1500, active: false, type: 'main' },
-    { id: 16, name: 'Консультация', code: 'S0016', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 17, name: 'Консультация', code: 'S0017', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 18, name: 'Консультация', code: 'S0018', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 19, name: 'Консультация', code: 'S0019', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 20, name: 'Консультация', code: 'S0020', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 21, name: 'Консультация', code: 'S0021', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 22, name: 'Консультация', code: 'S0022', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 23, name: 'Консультация', code: 'S0023', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 24, name: 'Консультация', code: 'S0024', description: 'Краткое описание', price: 1000, active: true, type: 'main' },
-    { id: 25, name: 'Диагностика', code: 'S0025', description: 'Краткое описание', price: 1500, active: false, type: 'main' },
-    { id: 26, name: 'Диагностика', code: 'S0026', description: 'Краткое описание', price: 1500, active: false, type: 'main' },
-    { id: 27, name: 'Диагностика', code: 'S0027', description: 'Краткое описание', price: 1500, active: false, type: 'main' },
-    { id: 28, name: 'Диагностика', code: 'S0028', description: 'Краткое описание', price: 1500, active: false, type: 'main' },
-    { id: 29, name: 'Диагностика', code: 'S0029', description: 'Краткое описание', price: 1500, active: false, type: 'main' },
-    { id: 30, name: 'Диагностика', code: 'S0030', description: 'Краткое описание', price: 1500, active: false, type: 'main' },
-    { id: 1, name: 'Доп. анализ', code: 'S003', description: 'Краткое описание', price: 500, active: true, type: 'additional' },
-    { id: 2, name: 'Доп. анализ', code: 'S003', description: 'Краткое описание', price: 500, active: true, type: 'additional' },
-    { id: 3, name: 'Доп. анализ', code: 'S003', description: 'Краткое описание', price: 500, active: true, type: 'additional' },
-]);
-
+const services = ref<Service[]>([]);
 const search = ref('');
-const sortKey = ref('name');
+const sortKey = ref<'name' | 'code'>('name');
 const sortAsc = ref(true);
 const showModal = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = 14;
 const activeTab = ref<ServiceType>('main');
-const editingService = ref<any | null>(null);
+const editingService = ref<Service | null>(null);
+
+onMounted(fetchServices);
+
+async function fetchServices() {
+    try {
+        const response = await axios.get('/services-api');
+        services.value = response.data;
+    } catch (e) {
+        console.error('Ошибка загрузки услуг:', e);
+    }
+}
 
 const filteredServices = computed(() => {
-    const typeFiltered = services.value.filter((s) => s.type === activeTab.value);
-    const searchFiltered = typeFiltered.filter(
-        (s) => s.name.toLowerCase().includes(search.value.toLowerCase()) || s.code.toLowerCase().includes(search.value.toLowerCase()),
-    );
-    return searchFiltered.sort((a, b) => {
-        const valA = a[sortKey.value];
-        const valB = b[sortKey.value];
-        return sortAsc.value ? valA.localeCompare(valB) : valB.localeCompare(valA);
-    });
+    const filtered = services.value.filter((s) => s.type === activeTab.value);
+    return filtered
+        .filter((s) => s.name.toLowerCase().includes(search.value.toLowerCase()) || s.code.toLowerCase().includes(search.value.toLowerCase()))
+        .sort((a, b) => {
+            const valA = a[sortKey.value];
+            const valB = b[sortKey.value];
+            return sortAsc.value ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        });
 });
 
 const paginatedServices = computed(() => {
@@ -71,55 +56,41 @@ const paginatedServices = computed(() => {
 const totalPages = computed(() => Math.ceil(filteredServices.value.length / itemsPerPage));
 
 function goToPage(page: number) {
-    if (page >= 1 && page <= totalPages.value) {
-        currentPage.value = page;
-    }
+    if (page >= 1 && page <= totalPages.value) currentPage.value = page;
 }
 
 function getMiddlePages() {
-    if (totalPages.value <= 5) {
-        return Array.from({ length: totalPages.value - 2 }, (_, i) => i + 2);
-    }
-
+    if (totalPages.value <= 5) return Array.from({ length: totalPages.value - 2 }, (_, i) => i + 2);
     let start = Math.max(2, currentPage.value - 1);
     let end = Math.min(totalPages.value - 1, start + 2);
-
-    if (end - start < 2) {
-        start = Math.max(2, end - 2);
-    }
-
-    const pages = [];
-    for (let i = start; i <= end; i++) {
-        pages.push(i);
-    }
-    return pages;
+    if (end - start < 2) start = Math.max(2, end - 2);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 }
 
-function deleteService(id: number) {
+async function deleteService(id: number) {
     const service = services.value.find((s) => s.id === id);
-    if (window.confirm(`Вы уверены, что хотите удалить услугу "${service?.name}"?`)) {
+    if (!service) return;
+    if (!confirm(`Удалить услугу "${service.name}"?`)) return;
+    try {
+        await axios.delete(`/services-api/${id}`);
         services.value = services.value.filter((s) => s.id !== id);
+    } catch (e) {
+        alert('Ошибка при удалении услуги');
+        console.error(e);
     }
 }
 
-function addService(service: any) {
-    services.value.push({
-        ...service,
-        id: Date.now(),
-        active: true,
-    });
-    showModal.value = false;
-}
-
-function editService(service: any) {
-    editingService.value = { ...service }; // копия объекта
+function editService(service: Service) {
+    editingService.value = { ...service };
     showModal.value = true;
 }
 
-function updateService(updated: any) {
-    const index = services.value.findIndex((s) => s.id === updated.id);
+function handleFormSubmit(service: Service) {
+    const index = services.value.findIndex((s) => s.id === service.id);
     if (index !== -1) {
-        services.value[index] = { ...services.value[index], ...updated };
+        services.value[index] = service; // редактирование
+    } else {
+        services.value.push(service); // добавление
     }
     showModal.value = false;
     editingService.value = null;
@@ -307,7 +278,7 @@ function updateService(updated: any) {
                 <AddServiceForm
                     :initial="editingService"
                     :isEdit="Boolean(editingService)"
-                    @submit="editingService ? updateService : addService"
+                    @submit="handleFormSubmit"
                     @cancel="
                         showModal = false;
                         editingService = null;

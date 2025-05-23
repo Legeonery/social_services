@@ -229,7 +229,29 @@ class SocialWorkerUserController extends Controller
     {
         $socialWorker = User::where('role', 'social_worker')->findOrFail($id);
 
-        $clients = $socialWorker->clients()->get()->map(function ($client) {
+        $clients = $socialWorker->clients()->get()->map(function ($client) use ($id) {
+            $primaryRelation = $client->socialWorkers()
+                ->wherePivot('temporary', false)
+                ->where('users.id', '!=', $id)
+                ->first();
+
+            $absencePeriod = null;
+
+            if ($primaryRelation) {
+                // Берём ближайший или активный период отсутствия
+                $absence = $primaryRelation->absences()
+                    ->whereDate('to', '>=', now()) // не обязательно активный, а любой актуальный или будущий
+                    ->orderBy('from')
+                    ->first();
+
+                if ($absence) {
+                    $absencePeriod = [
+                        'from' => $absence->from->toDateString(),
+                        'to' => $absence->to->toDateString(),
+                    ];
+                }
+            }
+
             return [
                 'id' => $client->id,
                 'fullName' => $client->name,
@@ -238,7 +260,8 @@ class SocialWorkerUserController extends Controller
                     'from' => $client->pivot->from ?? null,
                     'to' => $client->pivot->to ?? null,
                 ],
-                'hasPrimaryWorker' => $client->socialWorkers()->wherePivot('temporary', false)->exists(),
+                'hasPrimaryWorker' => !!$primaryRelation,
+                'absencePeriod' => $absencePeriod,
             ];
         });
 

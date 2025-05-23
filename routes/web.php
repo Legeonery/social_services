@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\Auth\AdminUserController;
 use App\Http\Controllers\ClientUserController;
 use App\Http\Controllers\SocialWorkerUserController;
@@ -6,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\UserController;
 use App\Models\ClientType;
+use App\Http\Controllers\ServiceController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -14,7 +16,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', fn() => Inertia::render('Dashboard'))->name('dashboard');
     Route::get('users', fn() => Inertia::render('Users'))->name('users');
-    Route::get('services', fn() => Inertia::render('Services'))->name('services');
+    Route::get('/services', fn() => Inertia::render('Services'))->name('services');
     Route::get('schedule', fn() => Inertia::render('Schedule'))->name('schedule');
     Route::get('schedule/{date}', fn($date) => Inertia::render('Schedule/Day', ['date' => $date]))->name('schedule.day');
 });
@@ -37,6 +39,11 @@ Route::get('/users/unassigned-clients', [UserController::class, 'unassignedClien
 Route::get('/users/social-workers/{id}/absences', [SocialWorkerUserController::class, 'getAbsences']);
 Route::delete('/absences/{id}', [SocialWorkerUserController::class, 'deleteAbsence']);
 Route::put('/absences/{id}', [SocialWorkerUserController::class, 'updateAbsence']);
+
+Route::get('/services-api', [ServiceController::class, 'index']);
+Route::post('/services-api', [ServiceController::class, 'store']);
+Route::put('/services-api/{service}', [ServiceController::class, 'update']);
+Route::delete('/services-api/{service}', [ServiceController::class, 'destroy']);
 
 Route::get('/client-types', function () {
     return ClientType::select('id', 'name')->get();
