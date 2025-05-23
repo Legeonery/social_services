@@ -1,12 +1,28 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+const { props } = usePage();
+const user = computed(() => props.auth?.user);
 
 // Форма для выхода
 const form = useForm();
 const logout = () => {
     form.post(route('logout'));
 };
+
+const dashboardRoute = computed(() => {
+    switch (user.value?.role) {
+        case 'admin':
+            return route('users');
+        case 'client':
+            return route('client.services');
+        case 'social_worker':
+            return route('socialworker.services');
+        default:
+            return '/';
+    }
+});
 </script>
 
 <template>
@@ -26,7 +42,7 @@ const logout = () => {
 
                 <!-- Кнопка "Перейти в кабинет" -->
                 <Link
-                    :href="route('users')"
+                    :href="dashboardRoute"
                     class="inline-block w-full rounded-lg border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-[#1b1b18] transition hover:bg-gray-100 dark:border-gray-600 dark:bg-[#2a2a2a] dark:text-white dark:hover:bg-[#3a3a3a]"
                 >
                     Перейти в кабинет

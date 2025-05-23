@@ -14,11 +14,50 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', fn() => Inertia::render('Dashboard'))->name('dashboard');
-    Route::get('users', fn() => Inertia::render('Users'))->name('users');
-    Route::get('/services', fn() => Inertia::render('Services'))->name('services');
-    Route::get('schedule', fn() => Inertia::render('Schedule'))->name('schedule');
-    Route::get('schedule/{date}', fn($date) => Inertia::render('Schedule/Day', ['date' => $date]))->name('schedule.day');
+    Route::get('dashboard', function () {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+        return Inertia::render('Dashboard');
+    })->name('dashboard');
+    Route::get('users', function () {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+        return Inertia::render('Users');
+    })->name('users');
+    Route::get('/services', function () {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+        return Inertia::render('Services');
+    })->name('services');
+    Route::get('schedule', function () {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+        return Inertia::render('Schedule');
+    })->name('schedule');
+    Route::get('schedule/{date}', function ($date) {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+        return Inertia::render('Schedule/Day', ['date' => $date]);
+    })->name('schedule.day');
+
+    Route::get('/client-services', function () {
+        if (auth()->user()->role !== 'client') {
+            abort(403);
+        }
+        return Inertia::render('ClientServices');
+    })->name('client.services');
+
+    Route::get('/provide-services', function () {
+        if (auth()->user()->role !== 'social_worker') {
+            abort(403);
+        }
+        return Inertia::render('ProvideServices');
+    })->name('socialworker.services');
 });
 
 Route::post('/users/admins', [AdminUserController::class, 'store'])->name('users.admins.store');
