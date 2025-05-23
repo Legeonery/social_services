@@ -32,8 +32,9 @@ onMounted(async () => {
                     status: user.status === 'active' ? 'Активный' : user.status === 'inactive' ? 'Неактивный' : user.status,
                     type: user.type ?? '',
                     client_type_id: user.client_type_id ?? null,
-                    socialWorker: user.social_worker_name ?? '',
-                    socialWorkerType: user.social_worker_type ?? '',
+                    primary_social_worker: user.primary_social_worker ?? '',
+                    temporary_social_worker: user.temporary_social_worker ?? '',
+                    temporary_period: user.temporary_period ?? null,
                     tab: 'clients',
                 };
             } else if (user.tab === 'social_workers') {
@@ -53,6 +54,7 @@ onMounted(async () => {
                                   ? 'На больничном'
                                   : user.status,
                     tab: 'social_workers',
+                    socialWorkerClients: user.socialWorkerClients ?? [],
                 };
             } else {
                 return {
@@ -301,11 +303,17 @@ function goToPage(page: number) {
                             <td class="p-2">{{ user.phone }}</td>
                             <td class="p-2">{{ user.email }}</td>
                             <td class="p-2">
-                                <span v-if="user.socialWorker">
-                                    {{ user.socialWorker }}
-                                    <span class="text-xs text-gray-400">({{ user.socialWorkerType }})</span>
-                                </span>
-                                <span v-else class="text-gray-400">–</span>
+                                <div v-if="user.primary_social_worker">
+                                    {{ user.primary_social_worker }}
+                                    <span class="text-xs text-gray-400">(основной)</span>
+                                </div>
+                                <div v-if="user.temporary_social_worker">
+                                    {{ user.temporary_social_worker }}
+                                    <span class="text-xs text-yellow-600"
+                                        >(временный: {{ user.temporary_period?.from }} – {{ user.temporary_period?.to }})</span
+                                    >
+                                </div>
+                                <span v-if="!user.primary_social_worker && !user.temporary_social_worker" class="text-gray-400">–</span>
                             </td>
                             <td class="p-2">{{ user.type }}</td>
                             <td class="p-2">
@@ -491,7 +499,16 @@ function goToPage(page: number) {
                 <p><strong>Статус:</strong> {{ selectedUser?.status }}</p>
 
                 <p v-if="activeTab === 'clients'">
-                    <strong>Соц. работник:</strong> {{ selectedUser?.socialWorker }}<br />
+                    <strong>Основной соц. работник:</strong>
+                    {{ selectedUser?.primary_social_worker || '–' }}<br />
+                    <strong>Временный соц. работник:</strong>
+                    <span v-if="selectedUser?.temporary_social_worker">
+                        {{ selectedUser.temporary_social_worker }}
+                        <span class="text-sm text-gray-400">
+                            ({{ selectedUser.temporary_period.from }} – {{ selectedUser.temporary_period.to }})
+                        </span>
+                    </span>
+                    <span v-else>–</span><br />
                     <strong>Тип:</strong> {{ selectedUser?.type }}
                 </p>
 

@@ -19,17 +19,16 @@ class UserController extends Controller
             }])
             ->get()
             ->map(function ($user) use ($today) {
-                // Найдём текущего активного соцработника
-                $activeWorker = $user->socialWorkers
-                    ->filter(function ($worker) use ($today) {
-                        $pivot = $worker->pivot;
-                        if (!$pivot->temporary) {
-                            return true; // основной
-                        }
-                        return $pivot->from <= $today && $pivot->to >= $today; // временный, но активный
-                    })
-                    ->sortByDesc(fn($w) => $w->pivot->temporary) // временный > основной (чтобы временный перебивал основного)
-                    ->first();
+                $primaryWorker = $user->socialWorkers
+                    ->first(fn($worker) => !$worker->pivot->temporary);
+
+                $temporaryWorker = $user->socialWorkers
+                    ->first(
+                        fn($worker) =>
+                        $worker->pivot->temporary &&
+                            $worker->pivot->from <= $today &&
+                            $worker->pivot->to >= $today
+                    );
 
                 return [
                     'id' => $user->id,
@@ -39,22 +38,43 @@ class UserController extends Controller
                     'status' => $user->status ?? 'Активный',
                     'type' => optional($user->clientType)->name,
                     'client_type_id' => $user->client_type_id,
-                    'social_worker_name' => $activeWorker?->name,
-                    'social_worker_type' => $activeWorker?->pivot->temporary ? 'временный' : 'основной',
+
+                    // Раздельно указываем основного и временного
+                    'primary_social_worker' => $primaryWorker?->name,
+                    'temporary_social_worker' => $temporaryWorker?->name,
+                    'temporary_period' => $temporaryWorker ? [
+                        'from' => $temporaryWorker->pivot->from,
+                        'to' => $temporaryWorker->pivot->to,
+                    ] : null,
+
                     'tab' => 'clients',
                 ];
             });
 
-        $socialWorkers = User::where('role', 'social_worker')->get()->map(function ($user) {
-            return [
-                'id' => $user->id,
-                'name' => $user->name ?? '',
-                'phone' => $user->phone,
-                'email' => $user->email,
-                'status' => $user->status ?? 'Активный',
-                'tab' => 'social_workers',
-            ];
-        });
+        $socialWorkers = User::where('role', 'social_worker')
+            ->with(['clients' => function ($query) {
+                $query->select('users.id', 'users.name')
+                    ->withPivot(['temporary', 'from', 'to']);
+            }])
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name ?? '',
+                    'phone' => $user->phone,
+                    'email' => $user->email,
+                    'status' => $user->status ?? 'Активный',
+                    'tab' => 'social_workers',
+                    'socialWorkerClients' => $user->clients->map(function ($client) {
+                        $label = $client->name;
+                        if ($client->pivot->temporary) {
+                            $label .= ' (временно: ' . $client->pivot->from . ' — ' . $client->pivot->to . ')';
+                        }
+                        return $label;
+                    }),
+                ];
+            });
+
 
         $admins = User::where('role', 'admin')->get()->map(function ($user) {
             return [
