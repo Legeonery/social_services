@@ -58,6 +58,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         }
         return Inertia::render('ProvideServices');
     })->name('socialworker.services');
+    Route::get('/provide-services/{date}', function ($date) {
+        if (auth()->user()->role !== 'social_worker') {
+            abort(403);
+        }
+        return Inertia::render('Schedule/ProvideServiceDay', ['date' => $date]);
+    });
 });
 
 Route::post('/users/admins', [AdminUserController::class, 'store'])->name('users.admins.store');
